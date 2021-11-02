@@ -12,36 +12,79 @@ import ArgumentParser
 // https://developer.apple.com/documentation/foundation/urlresourcekey/checking_volume_storage_capacity
 
 struct DiskSpace : ParsableCommand {
-    @Flag var humanReadable: Bool = false
+    @Flag(name: [.customShort("H"), .long],
+          help: "'Human-readable' output using unit suffixes")
+    var humanReadable = false
     
-    
-    func format(_ int: Int) -> String {
-        return format(Int64(int))
+    @Flag(name: .shortAndLong,
+          help: "Print only the value of the Available Capacity")
+    var available = false
+
+    @Flag(name: .shortAndLong,
+          help: "Print only the value of the Important Capacity")
+    var important = false
+
+    @Flag(name: .shortAndLong,
+          help: "Print only the value of the Opportunistic Capacity")
+    var opportunistic = false
+
+    @Flag(name: .shortAndLong,
+          help: "Print only the value of the total Capacity")
+    var total = false
+
+    func printValue(value int: Int, label: String? = nil) {
+        printValue(value: Int64(int), label: label)
     }
     
-    func format(_ int: Int64) -> String {
+    func printValue(value int: Int64, label: String? = nil) {
+        var value = ""
+        
         if humanReadable {
-            return ByteCountFormatter().string(fromByteCount: Int64(int))
+            value = ByteCountFormatter().string(fromByteCount: int)
         } else {
-            return String(int)
+            value = String(int)
+        }
+        
+        if let label = label {
+            print("\(label): \(value)")
+        } else {
+            print(value)
         }
     }
     
     func run() {
+        let showAll = !(available || important || opportunistic || total)
+        
         let systemVolume = URL(fileURLWithPath:"/")
         do {
             let values = try systemVolume.resourceValues(forKeys: [.volumeAvailableCapacityKey,.volumeAvailableCapacityForImportantUsageKey, .volumeAvailableCapacityForOpportunisticUsageKey, .volumeTotalCapacityKey])
-            if let totalCapacity = values.volumeAvailableCapacity {
-                print("Available:     \(format(totalCapacity))")
+            if let availableCapacity = values.volumeAvailableCapacity {
+                if available {
+                    printValue(value: availableCapacity)
+                } else if showAll {
+                    printValue(value: availableCapacity, label: "Available")
+                }
             }
             if let importantCapacity = values.volumeAvailableCapacityForImportantUsage {
-                print("Important:     \(format(importantCapacity))")
+                if important {
+                    printValue(value: importantCapacity)
+                } else if showAll {
+                    printValue(value: importantCapacity, label: "Important")
+                }
             }
             if let opportunisticCapacity = values.volumeAvailableCapacityForOpportunisticUsage {
-                print("Opportunistic: \(format(opportunisticCapacity))")
+                if opportunistic {
+                    printValue(value: opportunisticCapacity)
+                } else if showAll {
+                    printValue(value: opportunisticCapacity, label: "Opportunistic")
+                }
             }
             if let totalCapacity = values.volumeTotalCapacity {
-                print("Total:         \(format(totalCapacity))")
+                if total {
+                    printValue(value: totalCapacity)
+                } else if showAll {
+                    printValue(value: totalCapacity, label: "Total")
+                }
             }
         } catch {
             print("Error retrieving capacity: \(error.localizedDescription)")
