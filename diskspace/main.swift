@@ -31,7 +31,9 @@ struct DiskSpace : ParsableCommand {
     @Flag(name: .shortAndLong,
           help: "Print only the value of the total Capacity")
     var total = false
-
+    
+    @Argument var volumePath = "/"
+    
     func printValue(value int: Int, label: String? = nil) {
         printValue(value: Int64(int), label: label)
     }
@@ -55,7 +57,7 @@ struct DiskSpace : ParsableCommand {
     func run() {
         let showAll = !(available || important || opportunistic || total)
         
-        let systemVolume = URL(fileURLWithPath:"/")
+        let systemVolume = URL(fileURLWithPath: volumePath)
         do {
             let values = try systemVolume.resourceValues(forKeys: [.volumeAvailableCapacityKey,.volumeAvailableCapacityForImportantUsageKey, .volumeAvailableCapacityForOpportunisticUsageKey, .volumeTotalCapacityKey])
             if let availableCapacity = values.volumeAvailableCapacity {
