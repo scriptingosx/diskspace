@@ -12,6 +12,23 @@ import ArgumentParser
 // https://developer.apple.com/documentation/foundation/urlresourcekey/checking_volume_storage_capacity
 
 struct DiskSpace : ParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "diskspace",
+        abstract: "Returns available disk space",
+        discussion: """
+With the various APFS features the value for free disk space returned from tools such as `du` or `df` will not be accurate. This tool uses system functions to get various measures of available disk space.
+
+The 'Important' value matches the free disk space value shown in Finder.
+
+You can get the details from Apple's documentation:
+
+https://developer.apple.com/documentation/foundation/urlresourcekey/checking_volume_storage_capacity
+""",
+        version: "1"
+    )
+    
+    // MARK: Flags and Arguments
+    
     @Flag(name: [.customShort("H"), .long],
           help: "Human readable output using unit suffixes")
     var humanReadable = false
@@ -29,10 +46,12 @@ struct DiskSpace : ParsableCommand {
     var opportunistic = false
 
     @Flag(name: .shortAndLong,
-          help: "Print only the value of the total Capacity")
+          help: "Print only the value of the Total Capacity")
     var total = false
     
     @Argument(help: "path to the volume") var volumePath = "/"
+    
+    // MARK: Functions
     
     func printValue(value int: Int, label: String? = nil) {
         printValue(value: Int64(int), label: label)
@@ -54,6 +73,8 @@ struct DiskSpace : ParsableCommand {
             print(value)
         }
     }
+    
+    // MARK: Run the command
     
     func run() {
         let showAll = !(available || important || opportunistic || total)
@@ -95,4 +116,5 @@ struct DiskSpace : ParsableCommand {
     }
 }
 
+// call the struct's main function
 DiskSpace.main()
