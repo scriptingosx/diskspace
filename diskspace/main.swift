@@ -13,7 +13,7 @@ import ArgumentParser
 
 struct DiskSpace : ParsableCommand {
     @Flag(name: [.customShort("H"), .long],
-          help: "'Human-readable' output using unit suffixes")
+          help: "Human readable output using unit suffixes")
     var humanReadable = false
     
     @Flag(name: .shortAndLong,
@@ -32,7 +32,7 @@ struct DiskSpace : ParsableCommand {
           help: "Print only the value of the total Capacity")
     var total = false
     
-    @Argument var volumePath = "/"
+    @Argument(help: "path to the volume") var volumePath = "/"
     
     func printValue(value int: Int, label: String? = nil) {
         printValue(value: Int64(int), label: label)
@@ -48,7 +48,8 @@ struct DiskSpace : ParsableCommand {
         }
         
         if let label = label {
-            print("\(label): \(value)")
+            let paddedLabel = "\(label):".padding(toLength: 15, withPad: " ", startingAt: 0)
+            print("\(paddedLabel) \(value)")
         } else {
             print(value)
         }
