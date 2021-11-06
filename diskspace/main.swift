@@ -1,3 +1,4 @@
+#!/usr/bin/swift sh
 //
 //  main.swift
 //  diskspace
@@ -6,7 +7,7 @@
 //
 
 import Foundation
-import ArgumentParser
+import ArgumentParser // apple/swift-argument-parser
 
 // Code based on sample from here:
 // https://developer.apple.com/documentation/foundation/urlresourcekey/checking_volume_storage_capacity
